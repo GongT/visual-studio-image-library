@@ -1,0 +1,7 @@
+.idea/
+image-library/
+node_modules/
+dist/standalone/*/*.mjs
+dist/standalone/*/*.js
+*.zip
+*.tgz

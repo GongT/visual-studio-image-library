@@ -1,0 +1,5 @@
+image-library/
+node_modules/
+scripts/
+index.html
+.*

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Visual Studio Image Library 2017</title>
+	<link rel="stylesheet" href="/dist/index.css">
+	<style type="text/css">
+	.main {
+		display: flex;
+		flex-direction: column;
+	}
+	
+	.container {
+		flex: 1;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	
+	.tools {
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 20px
+	}
+	
+	.spacer {
+		flex-grow: 1;
+	}
+	
+	.icon-block {
+		display: flex;
+		flex-direction: column;
+		margin: 0 10px 10px 0;
+		width: 72px;
+	}
+	
+	.icon-block > .vs-icons {
+		font-size: 72px;
+	}
+	
+	.icon-block > .title {
+		font-weight: bold;
+		overflow: hidden;
+		overflow-wrap: break-word;
+		font-size: 11px;
+		text-align: center;
+	}
+	</style>
+</head>
+<body>
+<div class="main">
+	<div class="tools">
+		<input type="search" value="" id="searchInput"/>
+		<button onclick="search()">Search</button>
+		<button onclick="searchRegex()">Search (RegExp)</button>
+		<span id="error"></span>
+		<span class="spacer"></span>
+		<button onclick="show(-1)">page--</button>
+		<span id="pageNumber"></span>
+		<button onclick="show(1)">page++</button>
+	</div>
+	<div class="container" id="blocksContainer"></div>
+	<div class="about">
+		<div></div>
+		<a target=_blank href="https://github.com/GongT/visual-studio-image-library">Github Repo</a>
+		*
+		<a target=_blank href="https://www.microsoft.com/en-us/download/details.aspx?id=35825">Download zip from
+			Microsoft</a>
+		
+		<div>
+			All images are under
+			<a target=_blank href="http://download.microsoft.com/download/0/6/0/0607D8EA-9BB7-440B-A36A-A24EB8C9C67E/Visual%20Studio%202017%20Image%20Library%20EULA.RTF">
+				microsoft software license
+			</a>.
+		</div>
+	</div>
+</div>
+</body>
+<script type="text/javascript">
+'use strict';
+const listOfIcons = __LIST_ICONS_JSON__;
+let view = listOfIcons;
+let page = 0;
+const perPage = Math.min(Math.floor(window.innerWidth / (72 + 10)), 23) * 4;
+const pageMax = Math.floor(view.length / perPage) - 1;
+const blocksContainer = document.getElementById('blocksContainer');
+
+const setters = (new Array(perPage)).fill('1').map(() => {
+	const div = document.createElement('DIV');
+	div.classList.add('icon-block');
+
+	const icon = document.createElement('SPAN');
+	icon.classList.add('vs-icons');
+
+	const title = document.createElement('SPAN');
+	title.classList.add('title');
+
+	div.append(icon, title);
+	blocksContainer.append(div);
+
+	return (name) => {
+		icon.className = `vs-icons ${name}`;
+		title.innerText = name;
+	};
+});
+
+function search() {
+	const mstr = document.getElementById('searchInput').value;
+	view = listOfIcons.filter(icon => icon.toLowerCase().includes(mstr.toLowerCase()));
+	page = 0;
+	show();
+}
+
+function searchRegex() {
+	const regstr = document.getElementById('searchInput').value;
+	const regExp = new RegExp(regstr, 'i');
+	view = listOfIcons.filter(icon => regExp.test(icon));
+	page = 0;
+	show();
+}
+
+function show(pageOp) {
+	if (pageOp) {
+		page += pageOp;
+		if (page < 0) {
+			page = 0;
+		}
+		if (page > pageMax) {
+			page = pageMax;
+		}
+	}
+
+	document.getElementById('pageNumber').innerText = `${page}/${pageMax}`;
+	const end = page * perPage + perPage;
+	for (let index = page * perPage; index < end; index++) {
+		const name = view[index];
+		if (name) {
+			setters[index](name);
+		} else {
+			setters[index]('');
+		}
+	}
+}
+
+show();
+</script>
+</html>
