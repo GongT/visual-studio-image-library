@@ -57,7 +57,7 @@ glob(resolve(__dirname, '../image-library/**/*.svg'), {
 	createDoc(rets.map(item => item.fname));
 });
 
-const NumberNames = ['zero', 'one', 'two', 'three', 'four', 'five'];
+const NumberNames = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 function parse(file) {
 	let name = basename(file, '.svg');
@@ -78,7 +78,7 @@ function parse(file) {
 	exists[name] = true;
 
 	const fname = name.replace(/^[A-Z]+/, (m0) => {
-		if (m0.length === 0) {
+		if (m0.length === 1) {
 			return m0.toLowerCase();
 		}
 		return m0.slice(0, m0.length - 1).toLowerCase() + m0.slice(m0.length - 1);
