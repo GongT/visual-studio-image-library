@@ -55,9 +55,38 @@ glob(resolve(__dirname, '../image-library/**/*.svg'), {
 	endExample();
 
 	createDoc(rets.map(item => item.fname));
+
+	writeFileSync('xxx', JSON.stringify(knownColors, null, 4));
+
 });
 
 const NumberNames = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
+const specialNames = /^(?:VBA|VB|WPF|XML|WCF|VS|UI|UML|SQL|PY|JS|JSON|FS|CSS|CS|CPP|ATL)/;
+
+const knownColors = {};
+const inverseMap = new Map([
+	[/#f6f6f6/ig, '#434343'], // border / bg
+	[/#424242/ig, '#f5f5f5'], // stroke
+	[/#F0EFF1/ig, '#403F41'], // fill
+]);
+
+function inverse(content) {
+	let cKnown = {};
+	for (const i of content.matchAll(/#[a-z0-9A-Z]{6}/g)) {
+		if (cKnown[i]) {
+			continue;
+		}
+		cKnown[i] = true;
+		if (!knownColors[i]) {
+			knownColors[i] = 0;
+		}
+		knownColors[i]++;
+	}
+	for (const [from, to] of inverseMap.entries()) {
+		content = content.replace(from, to);
+	}
+	return content;
+}
 
 function parse(file) {
 	let name = basename(file, '.svg');
@@ -73,11 +102,11 @@ function parse(file) {
 	});
 
 	const baseName = name;
-	for (let i = 0; exists[name]; i++, name = baseName + i) {
+	for (let i = 1; exists[name]; i++, name = baseName + i) {
 	}
 	exists[name] = true;
 
-	const fname = name.replace(/^[A-Z]+/, (m0) => {
+	const fname = name.replace(specialNames, (m0) => m0.toLowerCase()).replace(/^[A-Z]+/, (m0) => {
 		if (m0.length === 1) {
 			return m0.toLowerCase();
 		}
@@ -95,12 +124,19 @@ function parse(file) {
 	writeSync(esWriter, `export {svg as ${varName}} from "./standalone/${fname}/index.mjs"\n`);
 	writeSync(jsWriter, `exports.${varName} = require("./standalone/${fname}/index.js").svg;\n`);
 
+	const inverseContent = inverse(content);
+
 	mkdirSync(resolve(sepDir, fname));
 	writeFileSync(resolve(sepDir, fname, `index.js`), `exports.svg = ${JSON.stringify(content)};\n`, 'utf8');
 	writeFileSync(resolve(sepDir, fname, `index.mjs`), `export const svg = ${JSON.stringify(content)};\n`, 'utf8');
 	writeFileSync(resolve(sepDir, fname, `${fname}.svg`), content);
+	writeFileSync(resolve(sepDir, fname, `${fname}_inverse.svg`), inverseContent);
 	writeSync(cssWriter, `.vs-icons.${fname}:before {
 	background-image: url(./standalone/${fname}/${fname}.svg);
+}
+.vs-icons.${fname}.inverse:before,
+.vs-icons-inverse-theme .vs-icons.${fname}:before {
+	background-image: url(./standalone/${fname}/${fname}_inverse.svg);
 }
 `, 'utf8');
 

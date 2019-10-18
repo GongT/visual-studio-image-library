@@ -12,7 +12,9 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
 	res.sendFile(resolve(root, 'index.html'));
 });
-
+app.get('/scripts/pageScript.js', (req, res) => {
+	res.sendFile(resolve(root, 'scripts/pageScript.js'), { headers: { 'content-type': 'text/javascript' } });
+});
 app.get('/dist/index.css', (req, res) => {
 	res.sendFile(resolve(root, 'dist/index.css'), { headers: { 'content-type': 'text/css' } });
 });

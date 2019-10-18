@@ -4,6 +4,11 @@
 	<title>Visual Studio Image Library 2017</title>
 	<link rel="stylesheet" href="dist/index.css">
 	<style type="text/css">
+	body.black {
+		color: white;
+		background: black;
+	}
+	
 	.main {
 		display: flex;
 		flex-direction: column;
@@ -54,8 +59,11 @@
 		<button onclick="searchRegex()">Search (RegExp)</button>
 		<span id="error"></span>
 		<span class="spacer"></span>
+		
+		<button onclick="colorSwitch(this)" class="vs-icons lightbulb" style="background:black">&nbsp;</button>
 		<button onclick="show(-1)">page--</button>
-		<span id="pageNumber"></span>
+		<input type="number" min="1" max="99999" value="1" id="pageNumber"/>
+		<span id="pageCount"></span>
 		<button onclick="show(1)">page++</button>
 	</div>
 	<div class="container" id="blocksContainer"></div>
@@ -76,77 +84,7 @@
 </div>
 </body>
 <script type="text/javascript">
-'use strict';
-const listOfIcons = __LIST_ICONS_JSON__;
-let view = listOfIcons;
-let pageMax;
-let page = 0;
-const perPage = Math.min(Math.floor(window.innerWidth / (72 + 10)), 23) * 4;
-const blocksContainer = document.getElementById('blocksContainer');
-
-function update() {
-	pageMax = Math.floor(view.length / perPage) - 1;
-}
-
-const setters = (new Array(perPage)).fill('1').map(() => {
-	const div = document.createElement('DIV');
-	div.classList.add('icon-block');
-
-	const icon = document.createElement('SPAN');
-	icon.classList.add('vs-icons');
-
-	const title = document.createElement('SPAN');
-	title.classList.add('title');
-
-	div.append(icon, title);
-	blocksContainer.append(div);
-
-	return (name) => {
-		icon.className = `vs-icons ${name}`;
-		title.innerText = name;
-	};
-});
-
-function search() {
-	const mstr = document.getElementById('searchInput').value;
-	view = listOfIcons.filter(icon => icon.toLowerCase().includes(mstr.toLowerCase()));
-	update();
-	page = 0;
-	show();
-}
-
-function searchRegex() {
-	const regstr = document.getElementById('searchInput').value;
-	const regExp = new RegExp(regstr, 'i');
-	view = listOfIcons.filter(icon => regExp.test(icon));
-	update();
-	page = 0;
-	show();
-}
-
-function show(pageOp) {
-	if (pageOp) {
-		page += pageOp;
-		if (page < 0) {
-			page = 0;
-		}
-		if (page > pageMax) {
-			page = pageMax;
-		}
-	}
-
-	document.getElementById('pageNumber').innerText = `${page}/${pageMax}`;
-	const start = page * perPage;
-	for (let index = 0; index < perPage; index++) {
-		const name = view[start + index];
-		if (name) {
-			setters[index](name);
-		} else {
-			setters[index]('');
-		}
-	}
-}
-
-show();
+window.listOfIcons = __LIST_ICONS_JSON__;
 </script>
+<script type="text/javascript" src="scripts/pageScript.js"></script>
 </html>
